@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #F2F1EB;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dfproductions.budgeting.controllers.RegisterController">
+   <children>
+      <Pane layoutX="14.0" layoutY="14.0" prefHeight="139.0" prefWidth="1250.0" style="-fx-background-color: #88AB8E;">
+         <children>
+            <Label layoutX="537.0" layoutY="44.0" text="Le register">
+               <font>
+                  <Font size="35.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      <TextField layoutX="558.0" layoutY="165.0" />
+      <TextField layoutX="558.0" layoutY="201.0" />
+      <TextField layoutX="558.0" layoutY="237.0" />
+      <TextField layoutX="559.0" layoutY="274.0" />
+      <Label layoutX="510.0" layoutY="169.0" text="Name" />
+      <Label layoutX="509.0" layoutY="205.0" text="E-mail" />
+      <Label layoutX="487.0" layoutY="241.0" text="Password" />
+      <Label layoutX="445.0" layoutY="278.0" text="Repeat Password" />
+      <Button fx:id="btnRegister" layoutX="605.0" layoutY="310.0" mnemonicParsing="false" onAction="#onRegisterClick" text="Register" />
+   </children>
+</AnchorPane>

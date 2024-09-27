@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dfproductions.budgeting.controllers.GraphsController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #F2F1EB;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dfproductions.budgeting.controllers.GraphsController">
    <children>
        <ButtonBar nodeOrientation="RIGHT_TO_LEFT" prefHeight="52.0" prefWidth="1280.0" style="-fx-background-color: #88AB8E;" AnchorPane.bottomAnchor="668.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
            <buttons>

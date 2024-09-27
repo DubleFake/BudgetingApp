@@ -14,7 +14,7 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
 
         SceneManager sm = new SceneManager(stage);
-        sm.switchScene("fxml/MainPage.fxml");
+        sm.switchScene("fxml/Login.fxml");
         Main.stage = stage;
     }
 

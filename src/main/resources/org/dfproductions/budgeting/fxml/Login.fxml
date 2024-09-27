@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #F2F1EB;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dfproductions.budgeting.controllers.LoginController">
+   <children>
+      <Pane layoutX="14.0" layoutY="14.0" prefHeight="200.0" prefWidth="1255.0" style="-fx-background-color: #88AB8E;">
+         <children>
+            <Label alignment="CENTER" layoutX="426.0" layoutY="68.0" text="Welcome to Le app">
+               <font>
+                  <Font size="45.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      <TextField layoutX="561.0" layoutY="334.0" promptText="sample.text@mail.com" />
+      <TextField layoutX="561.0" layoutY="373.0" promptText="verysecurepassword" />
+      <Label layoutX="520.0" layoutY="338.0" text="Login" />
+      <Label layoutX="495.0" layoutY="377.0" text="Password" />
+      <Button fx:id="btnLogIn" layoutX="594.0" layoutY="411.0" mnemonicParsing="false" onAction="#onLoginClick" prefHeight="26.0" prefWidth="83.0" text="Log in" />
+      <Label layoutX="578.0" layoutY="446.0" text="New user?" />
+      <Label fx:id="lblRegister" layoutX="642.0" layoutY="446.0" onMouseClicked="#onRegisterClick" text=" Register." textFill="#5641a4">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </Label>
+   </children>
+</AnchorPane>
