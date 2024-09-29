@@ -3,6 +3,7 @@ package org.dfproductions.budgeting;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.stage.Stage;
+import org.dfproductions.budgeting.backend.PasswordHashing;
 
 import java.io.IOException;
 

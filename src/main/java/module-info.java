@@ -8,6 +8,7 @@ module org.dfproductions.budgeting {
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
+    requires java.net.http;
     //requires eu.hansolo.tilesfx;
 
     opens org.dfproductions.budgeting to javafx.fxml;
