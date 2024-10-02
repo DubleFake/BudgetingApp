@@ -4,15 +4,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import org.dfproductions.budgeting.Main;
 import org.dfproductions.budgeting.SceneManager;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
@@ -47,7 +44,7 @@ public class LoginController implements Initializable {
 
             HttpClient client = HttpClient.newHttpClient();
 
-            String apiUrl = "http://localhost:8080/api/login";
+            String apiUrl = "http://localhost:8080/api/user/login";
             String bodyParams = "{\"email\":\"" + loginField.getText() + "\",\"password\":\""+ passwordField.getText() + "\"}"; // JSON body
             String username = "user";
             String password = "user";
