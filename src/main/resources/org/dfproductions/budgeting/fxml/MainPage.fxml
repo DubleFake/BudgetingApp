@@ -36,10 +36,12 @@
                      <children>
                         <TableView fx:id="expenseTable" prefHeight="140.0" prefWidth="714.0" GridPane.rowIndex="2">
                           <columns>
+                              <TableColumn fx:id="typeTableColumn" prefWidth="147.0" text="Type" />
                             <TableColumn fx:id="categoryTableColumn" prefWidth="147.0" text="Category" />
                             <TableColumn fx:id="priceTableColumn" prefWidth="134.0" text="Price" />
                               <TableColumn fx:id="placeTableColumn" prefWidth="148.0" text="Place" />
-                              <TableColumn fx:id="noteTableColumn" prefWidth="252.0" text="Note" />
+                              <TableColumn fx:id="dateTableColumn" prefWidth="203.0" text="Date" />
+                              <TableColumn fx:id="noteTableColumn" prefWidth="347.0" text="Note" />
                           </columns>
                            <columnResizePolicy>
                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -47,17 +49,22 @@
                         </TableView>
                         <HBox alignment="CENTER_LEFT" prefHeight="114.0" prefWidth="770.0" spacing="10.0" GridPane.rowIndex="1">
                            <children>
+                              <Label text="Type:" />
+                              <ChoiceBox fx:id="typeChoiceBox" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="113.0" />
                               <Label text="Category" />
-                              <ChoiceBox fx:id="categoryChoiceBox" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="157.0" />
+                              <ChoiceBox fx:id="categoryChoiceBox" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="139.0" />
                               <Label text="Price" />
-                              <TextField fx:id="priceTextField" alignment="TOP_LEFT" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="131.0" />
+                              <TextField fx:id="priceTextField" alignment="TOP_LEFT" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="103.0" />
                               <Label text="Place" />
-                              <TextField fx:id="placeTextField" alignment="TOP_LEFT" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="160.0" />
+                              <TextField fx:id="placeTextField" alignment="TOP_LEFT" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="149.0" />
                               <Label text="Note" />
-                              <TextField fx:id="noteTextField" alignment="TOP_LEFT" onMouseClicked="#turnOffStatusReportLabel" prefHeight="73.0" prefWidth="148.0" />
+                              <TextField fx:id="noteTextField" alignment="TOP_LEFT" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="143.0" />
                               <Label text="Date" />
-                              <DatePicker fx:id="datePicker" onKeyTyped="#turnOffStatusReportLabel" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="177.0" />
-                              <Button fx:id="btnAddExpense" mnemonicParsing="false" onAction="#onAddExpenseClick" style="-fx-background-color: #15ca0c;" text="Add Expense" />
+                              <DatePicker fx:id="datePicker" onKeyTyped="#turnOffStatusReportLabel" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="156.0" />
+                              <Button fx:id="btnAddExpense" mnemonicParsing="false" onAction="#onAddExpenseClick" style="-fx-background-color: #15ca0c;" text="+">
+                                 <font>
+                                    <Font name="System Bold" size="13.0" />
+                                 </font></Button>
                            </children>
                         </HBox>
                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
@@ -70,7 +77,13 @@
                                     <Insets right="15.0" />
                                  </padding>
                               </Label>
-                              <TextField fx:id="textFieldSearch" alignment="TOP_LEFT" onKeyTyped="#onTextFieldSearch" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="1102.0" />
+                              <TextField fx:id="textFieldSearch" alignment="TOP_LEFT" onKeyTyped="#onTextFieldSearch" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="807.0" />
+                              <Label text="Records from:">
+                                 <padding>
+                                    <Insets left="45.0" right="10.0" />
+                                 </padding>
+                              </Label>
+                              <ChoiceBox fx:id="recordPeriodChoiceBox" onMouseClicked="#turnOffStatusReportLabel" prefHeight="26.0" prefWidth="157.0" />
                            </children>
                         </HBox>
                      </children>
@@ -80,9 +93,9 @@
                   </GridPane>
                </children>
             </StackPane>
-            <Pane layoutX="14.0" layoutY="96.0" prefHeight="64.0" prefWidth="889.0" style="-fx-background-color: #75db70;">
+            <Pane layoutX="14.0" layoutY="42.0" prefHeight="64.0" prefWidth="889.0" style="-fx-background-color: #75db70;">
                <children>
-                  <Label fx:id="lblCurrentPage" layoutX="14.0" text="Expenses">
+                  <Label fx:id="lblCurrentPage" layoutX="14.0" text="Data input">
                      <font>
                         <Font size="42.0" />
                      </font>
@@ -94,6 +107,7 @@
                   <Font size="20.0" />
                </font>
             </Label>
+            <Button fx:id="refreshButton" layoutX="1206.0" layoutY="173.0" mnemonicParsing="false" onAction="#onLoadButtonClicked" style="-fx-background-color: #15ca0c;" text="Load" />
          </children>
       </Pane>
       <ButtonBar nodeOrientation="RIGHT_TO_LEFT" prefHeight="52.0" prefWidth="1280.0" style="-fx-background-color: #88AB8E;" AnchorPane.bottomAnchor="668.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

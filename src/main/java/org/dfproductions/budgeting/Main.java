@@ -15,8 +15,9 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
 
         SceneManager sm = new SceneManager(stage);
-        sm.switchScene("fxml/Login.fxml");
         Main.stage = stage;
+        sm.switchScene("fxml/Login.fxml");
+        stage.setResizable(false);
     }
 
     public static void main(String[] args) {

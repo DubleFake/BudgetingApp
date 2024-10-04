@@ -23,6 +23,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -54,6 +55,12 @@ public class MainPageController implements Initializable {
     private TableColumn<Record, String> categoryTableColumn;
 
     @FXML
+    private TableColumn<Record, String> dateTableColumn;
+
+    @FXML
+    private TableColumn<Record, String> typeTableColumn;
+
+    @FXML
     private TextField textFieldSearch;
 
     @FXML
@@ -69,17 +76,25 @@ public class MainPageController implements Initializable {
     private ChoiceBox<String> categoryChoiceBox;
 
     @FXML
+    private ChoiceBox<String> recordPeriodChoiceBox;
+
+    @FXML
+    private ChoiceBox<String> typeChoiceBox;
+
+    @FXML
     public DatePicker datePicker;
 
     @FXML
     private Label statusReportLabel;
 
-    private ObservableList<Record> recordList;
+    private static String selectionPeriod;
+
+    private static List<RecordWrapper> recordWrappers;
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        getRecordsForTable();
+
         categoryChoiceBox.getItems().add("Groceries");
         categoryChoiceBox.getItems().add("Communication");
         categoryChoiceBox.getItems().add("Transport");
@@ -87,17 +102,55 @@ public class MainPageController implements Initializable {
         categoryChoiceBox.getItems().add("Healthcare");
         categoryChoiceBox.getItems().add("Supplies");
         categoryChoiceBox.getItems().add("Home");
-        categoryChoiceBox.getItems().add("Cat");
+        categoryChoiceBox.getItems().add("Pet");
+
+        recordPeriodChoiceBox.getItems().add("This month");
+        recordPeriodChoiceBox.getItems().add("Last month");
+        recordPeriodChoiceBox.getItems().add("Last 3 months");
+        recordPeriodChoiceBox.getItems().add("Last 6 months");
+        recordPeriodChoiceBox.getItems().add("Last year");
+        recordPeriodChoiceBox.getItems().add("Last 2 years");
+        recordPeriodChoiceBox.getItems().add("All time");
+        recordPeriodChoiceBox.setValue("This month");
+
+        typeChoiceBox.getItems().add("Expense");
+        typeChoiceBox.getItems().add("Income");
+
+        LocalDate now = LocalDate.now();
+        selectionPeriod = now.getYear() + formatValue(now.getMonthValue());
+
+        recordWrappers = getRecords();
+        assert recordWrappers != null;
+        insertRecordsIntoTable(recordWrappers);
     }
 
-    private void getRecordsForTable() {
+    private List<RecordWrapper> declassifyRecords(String json) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            List<RecordWrapper> records = objectMapper.readValue(json, new TypeReference<>() {
+            });
 
+            for (RecordWrapper recordWrapper : records) {
+                String date = recordWrapper.getRecord().getDate();
+                String year = date.substring(0,4);
+                String month = date.substring(0,6).substring(4);
+                String day = date.substring(date.length() - 2);
+                recordWrapper.getRecord().setDate(year + "/" + month + "/" + day);
+
+            }
+
+            return records;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    private List<RecordWrapper> getRecords() {
         try {
             HttpClient client = HttpClient.newHttpClient();
 
-            LocalDate now = LocalDate.now();
-
-            String apiUrl = "http://localhost:8080/api/record/get/" + now.getYear() + now.getMonthValue();
+            String apiUrl = "http://localhost:8080/api/record/get/" + selectionPeriod;
             String username = "user";
             String password = "user";
 
@@ -118,37 +171,30 @@ public class MainPageController implements Initializable {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            String json = response.body();
-
-            ObjectMapper objectMapper = new ObjectMapper();
-
-
-            categoryTableColumn.setCellValueFactory(new PropertyValueFactory<>("Category"));
-            priceTableColumn.setCellValueFactory(new PropertyValueFactory<>("Price"));
-            placeTableColumn.setCellValueFactory(new PropertyValueFactory<>("Place"));
-            noteTableColumn.setCellValueFactory(new PropertyValueFactory<>("Note"));
-            recordList = FXCollections.observableArrayList();
-
-            try {
-                List<RecordWrapper> records = objectMapper.readValue(json, new TypeReference<>() {
-                });
-
-                for (RecordWrapper recordWrapper : records) {
-                    recordList.add(recordWrapper.getRecord());
-                }
-
-                expenseTable.setItems(recordList);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             System.out.println(response.statusCode());
             System.out.println(response.body());
 
+            return declassifyRecords(response.body());
         }catch (Exception ex){
             ex.printStackTrace();
         }
+        return null;
+    }
+
+    private void insertRecordsIntoTable(List<RecordWrapper> recordWrappers) {
+
+        categoryTableColumn.setCellValueFactory(new PropertyValueFactory<>("Category"));
+        priceTableColumn.setCellValueFactory(new PropertyValueFactory<>("Price"));
+        placeTableColumn.setCellValueFactory(new PropertyValueFactory<>("Place"));
+        dateTableColumn.setCellValueFactory(new PropertyValueFactory<>("Date"));
+        noteTableColumn.setCellValueFactory(new PropertyValueFactory<>("Note"));
+        typeTableColumn.setCellValueFactory(new PropertyValueFactory<>("Type"));
+        ObservableList<Record> recordList;
+        recordList = FXCollections.observableArrayList();
+        for(RecordWrapper recordWrapper : recordWrappers) {
+            recordList.add(recordWrapper.getRecord());
+        }
+        expenseTable.setItems(recordList);
     }
 
     @FXML
@@ -172,7 +218,7 @@ public class MainPageController implements Initializable {
     }
 
     @FXML
-    private void onAddExpenseClick(ActionEvent event) {
+    private void onAddExpenseClick() {
 
         turnOffStatusReportLabel();
 
@@ -182,8 +228,9 @@ public class MainPageController implements Initializable {
 
             HttpClient client = HttpClient.newHttpClient();
 
-            LocalDate date =  datePicker.getValue();
-            String formattedDate = date.getYear() + Integer.toString(date.getMonth().getValue()) + date.getDayOfMonth();
+            LocalDate date = datePicker.getValue();
+
+            String formattedDate = date.getYear() + formatValue(date.getMonthValue()) + formatValue(date.getDayOfMonth());
 
             String apiUrl = "http://localhost:8080/api/record/create";
             String bodyParams = "{\n" +
@@ -192,7 +239,8 @@ public class MainPageController implements Initializable {
                     "      \"date\":\"" + formattedDate + "\",\n" +
                     "      \"price\":\"" + priceTextField.getText() + "\",\n" +
                     "      \"place\":\"" + placeTextField.getText() + "\",\n" +
-                    "      \"note\":\"" + noteTextField.getText() + "\"\n" +
+                    "      \"note\":\"" + noteTextField.getText() + "\",\n" +
+                    "      \"type\":\"" + typeChoiceBox.getValue() + "\"\n" +
                     "   },\n" +
                     "   \"email\":\"user\"\n" +
                     "}"; // JSON body
@@ -228,19 +276,47 @@ public class MainPageController implements Initializable {
             statusReportLabel.setText("Record added successfully!");
             statusReportLabel.setVisible(true);
 
-
+            recordWrappers = getRecords();
+            assert recordWrappers != null;
+            insertRecordsIntoTable(recordWrappers);
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        getRecordsForTable();
+    }
 
+    private String formatValue(int value) {
+
+        if(value <= 9)
+            return "0" + value;
+        else
+            return Integer.toString(value);
     }
 
     @FXML
-    private void onTextFieldSearch(ActionEvent event) {
+    private void onTextFieldSearch() {
+
+        List<RecordWrapper> filteredRecordWrappers = new ArrayList<>();
+        String query = textFieldSearch.getText();
+
+        if(!query.isEmpty()) {
+            for (RecordWrapper recordWrapper : recordWrappers) {
+                if (recordWrapper.getRecord().getType().contains(query)
+                        || recordWrapper.getRecord().getCategory().contains(query)
+                        || Double.toString(recordWrapper.getRecord().getPrice()).contains(query)
+                        || recordWrapper.getRecord().getPlace().contains(query)
+                        || recordWrapper.getRecord().getDate().contains(query)
+                        || recordWrapper.getRecord().getNote().contains(query)) {
+                    filteredRecordWrappers.add(recordWrapper);
+                }
+            }
+        } else {
+            filteredRecordWrappers = recordWrappers;
+        }
+
+        insertRecordsIntoTable(filteredRecordWrappers);
 
     }
 
@@ -250,6 +326,55 @@ public class MainPageController implements Initializable {
             statusReportLabel.setVisible(false);
             statusReportLabel.setText("");
         }
+    }
+
+    @FXML
+    private void onLoadButtonClicked(){
+
+        LocalDate now = LocalDate.now();
+
+        switch (recordPeriodChoiceBox.getValue()) {
+            case "This month":
+                selectionPeriod = now.getYear() + formatValue(now.getMonthValue());
+                break;
+            case "Last month":
+                if(now.getMonth().getValue() == 1) {
+                    selectionPeriod = now.getYear() - 1 + "12" + "-"  + now.getYear() + formatValue(now.getMonthValue());
+                }else{
+                    selectionPeriod = now.getYear() + formatValue(now.getMonth().getValue()-1) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                }
+                break;
+            case "Last 3 months":
+                if(now.getMonth().getValue() >= 3) {
+                    selectionPeriod = now.getYear() + formatValue(now.getMonthValue()-3) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                }else{
+                    selectionPeriod = now.getYear()-1 + formatValue(now.getMonthValue()-3) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                }
+                break;
+            case "Last 6 months":
+                if(now.getMonth().getValue() >= 6) {
+                    selectionPeriod = now.getYear() + formatValue(now.getMonthValue()-6) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                }else{
+                    selectionPeriod = now.getYear()-1 + formatValue(now.getMonthValue()-6) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                }
+                break;
+            case "Last year":
+                selectionPeriod = now.getYear() - 1 + formatValue(now.getMonthValue()) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                break;
+            case "Last 2 years":
+                selectionPeriod = now.getYear() - 2 + formatValue(now.getMonthValue()) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                break;
+            case "All time":
+                selectionPeriod = "197001-" + now.getYear() + formatValue(now.getMonthValue());
+                break;
+            default:
+                break;
+        }
+
+        recordWrappers = getRecords();
+        assert recordWrappers != null;
+        insertRecordsIntoTable(recordWrappers);
+
     }
 
 }

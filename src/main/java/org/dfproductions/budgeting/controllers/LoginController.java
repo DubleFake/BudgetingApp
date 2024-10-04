@@ -64,10 +64,11 @@ public class LoginController implements Initializable {
 
             int responseCode = response.statusCode();
 
-            if(responseCode == 202)
-                sm.switchScene("fxml/MainPage.fxml");
             System.out.println(response.statusCode());
             System.out.println(response.body());
+
+            if(responseCode == 202)
+                sm.switchScene("fxml/MainPage.fxml");
 
         } catch (Exception e) {
             e.printStackTrace();

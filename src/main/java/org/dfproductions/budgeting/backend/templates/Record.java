@@ -9,10 +9,11 @@ public class Record {
     private String place;
     private String note;
     private int userId;
+    private String type;
 
     public Record() {}
 
-    public Record(int id, String category, String date, double price, String place, String note, int userId) {
+    public Record(int id, String category, String date, double price, String place, String note, int userId, String type) {
         this.id = id;
         this.category = category;
         this.date = date;
@@ -20,6 +21,15 @@ public class Record {
         this.place = place;
         this.note = note;
         this.userId = userId;
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public int getId() {
