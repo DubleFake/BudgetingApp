@@ -16,7 +16,7 @@ public class Main extends Application {
 
         SceneManager sm = new SceneManager(stage);
         Main.stage = stage;
-        sm.switchScene("fxml/Login.fxml");
+        sm.switchScene("fxml/Graphs.fxml");
         stage.setResizable(false);
     }
 

@@ -3,6 +3,7 @@ package org.dfproductions.budgeting.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -11,6 +12,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.chart.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 import org.dfproductions.budgeting.Main;
 import org.dfproductions.budgeting.SceneManager;
 import org.dfproductions.budgeting.backend.templates.RecordWrapper;
@@ -23,17 +26,37 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+
+class DataItem {
+    private String date;
+    private Double price;
+
+    public DataItem(String date, Double price) {
+        this.date = date;
+        this.price = price;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+}
 
 public class GraphsController implements Initializable {
 
     private static String selectionPeriod;
-
-    @FXML
-    private Button btnGraphs;
 
     @FXML
     private Button btnMainPage;
@@ -74,80 +97,91 @@ public class GraphsController implements Initializable {
         periodChoiceBox.getItems().add("All time");
         periodChoiceBox.setValue("This month");
 
+        expensesBarChart.setAnimated(false);
+
         LocalDate now = LocalDate.now();
-        selectionPeriod = now.getYear() + formatValue(now.getMonthValue());
+        selectionPeriod = Integer.toString(now.getYear()) + now.getMonthValue();
+
 
         retrievedRecords = retrieveNewRecordData();
+        populateBarChart();
         try {
             populatePieChart();
-            populateBarChart();
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
 
+
     }
 
     private void populateBarChart() {
+        // Clear previous data, but avoid clearing the X-axis directly
+        expensesBarChart.getData().clear();
 
-        xAxis.setLabel("Month");
-        yAxis.setLabel("Money spent");
-        xAxis.setVisible(true);
-        yAxis.setVisible(true);
+        // Set chart title
+        expensesBarChart.setTitle("Money spent");
 
-        expensesBarChart.setTitle("Money spent per month");
-
+        // Create a new data series
         XYChart.Series<String, Number> series = new XYChart.Series<>();
+        List<XYChart.Data<String, Number>> data = new ArrayList<>();
         series.setName("Money spent");
 
-        /*for (RecordWrapper recordWrapper : retrievedRecords) {
-
+        // Populate the data from your records
+        for (RecordWrapper recordWrapper : retrievedRecords) {
             String date = recordWrapper.getRecord().getDate();
-            String year = date.substring(0,4);
-            String month = date.substring(0,6).substring(4);
+            String year = date.substring(0, 4);
+            String month = date.substring(0, 6).substring(4);
 
             String formattedDate = year + "/" + month;
 
-            series.getData().add(formattedDate, );
-
-            if (series.stream().anyMatch(x -> x.getName().equals(formattedDate))) {
-                series.stream()
-                        .filter(x -> x.getName().equals(formattedDate))
-                        .forEach(x -> x.getData().set(0, new XYChart.Data<>("Expenses", x.getData().get(0).getYValue().doubleValue() + recordWrapper.getRecord().getPrice())));
+            // Check if the category already exists
+            if (data.stream().anyMatch(x -> x.getXValue().equals(formattedDate))) {
+                // Update the existing value
+                data.stream()
+                        .filter(x -> x.getXValue().equals(formattedDate))
+                        .forEach(x -> x.setYValue((Double) x.getYValue() + recordWrapper.getRecord().getPrice()));
             } else {
-
-
-                newSeries.getData().add(new XYChart.Data<>("Expenses", 0));
-                newSeries.setName(formattedDate);
+                // Add new data point
+                data.add(new XYChart.Data<>(formattedDate, recordWrapper.getRecord().getPrice()));
             }
+        }
 
-        }*/
+        // Add all data points to the series
+        series.getData().addAll(data);
 
-        expensesBarChart.getData().clear();
+        // Add the updated series to the chart
         expensesBarChart.getData().add(series);
 
-       /* // category = month
-        // series = money
+        // Add value labels to the bars
+        addValueLabels(series);
 
-        // Create data series
-        XYChart.Series<String, Number> series1 = new XYChart.Series<>();
-        series1.setName("2020");
+        // Set axis labels and rotation
+        xAxis.setTickLabelRotation(45);
+        xAxis.setLabel("Month");
+        yAxis.setLabel("Money spent");
+    }
 
-        // Add data to the series
-        series1.getData().add(new XYChart.Data<>("Category A", 50));
-        series1.getData().add(new XYChart.Data<>("Category B", 80));
-        series1.getData().add(new XYChart.Data<>("Category C", 90));
+    private void addValueLabels(XYChart.Series<String, Number> series) {
+        // Iterate over each data point in the series
+        for (XYChart.Data<String, Number> data : series.getData()) {
+            // Create a new label for each data point
+            Label valueLabel = new Label(data.getYValue().toString());
 
-        // Create another series
-        XYChart.Series<String, Number> series2 = new XYChart.Series<>();
-        series2.setName("2019");
+            // Add the label to the chart (on top of the BarChart)
+            StackPane barNode = (StackPane) data.getNode();  // The node representing the bar
+            barNode.getChildren().add(valueLabel);
 
-        // Add data to the second series
-        series2.getData().add(new XYChart.Data<>("Category A", 60));
-        series2.getData().add(new XYChart.Data<>("Category B", 70));
-        series2.getData().add(new XYChart.Data<>("Category C", 85));
-
-        // Add the series to the BarChart
-        expensesBarChart.getData().addAll(series1, series2);*/
+            // Adjust the label position dynamically based on the bar
+            barNode.parentProperty().addListener((obs, oldParent, newParent) -> {
+                if (newParent != null) {
+                    // Position the label in the correct spot
+                    Platform.runLater(() -> {
+                        valueLabel.setTranslateY(-valueLabel.getHeight() - 5);  // Position above the bar
+                        valueLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");  // Optional styling
+                    });
+                }
+            });
+        }
     }
 
     private String formatValue(int value) {
@@ -179,7 +213,7 @@ public class GraphsController implements Initializable {
 
         // Create the PieChart and set the data
         expensesPieChart.setData(pieChartData);
-        expensesPieChart.setTitle("Expenses this month by category");
+        expensesPieChart.setTitle("Expenses by category");
 
         expensesPieChart.getData().forEach(data ->
                 data.nameProperty().bind(
@@ -290,8 +324,9 @@ public class GraphsController implements Initializable {
                 break;
         }
 
+        retrievedRecords = retrieveNewRecordData();
+
         try {
-            retrieveNewRecordData();
             populatePieChart();
             populateBarChart();
         } catch (JsonProcessingException e) {
