@@ -23,10 +23,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class MainPageController implements Initializable {
 
@@ -298,18 +295,56 @@ public class MainPageController implements Initializable {
     @FXML
     private void onTextFieldSearch() {
 
+        List<String> keywords = Arrays.asList("Category:","Price:","Place:","Date:","Note:","Type:");
         List<RecordWrapper> filteredRecordWrappers = new ArrayList<>();
-        String query = textFieldSearch.getText();
+        String query = textFieldSearch.getText().toLowerCase();
 
         if(!query.isEmpty()) {
-            for (RecordWrapper recordWrapper : recordWrappers) {
-                if (recordWrapper.getRecord().getType().contains(query)
-                        || recordWrapper.getRecord().getCategory().contains(query)
-                        || Double.toString(recordWrapper.getRecord().getPrice()).contains(query)
-                        || recordWrapper.getRecord().getPlace().contains(query)
-                        || recordWrapper.getRecord().getDate().contains(query)
-                        || recordWrapper.getRecord().getNote().contains(query)) {
-                    filteredRecordWrappers.add(recordWrapper);
+            if(keywords.stream().anyMatch(x -> query.toLowerCase().contains(x.toLowerCase())) && query.split(":").length > 1) {
+               String[] args = query.split(":");
+                if (!args[1].isEmpty()) {
+                    for (RecordWrapper recordWrapper : recordWrappers) {
+                        switch (args[0].toLowerCase()) {
+                            case "category":
+                                if (recordWrapper.getRecord().getCategory().toLowerCase().contains(args[1].toLowerCase()))
+                                    filteredRecordWrappers.add(recordWrapper);
+                                break;
+                            case "price":
+                                if (Double.toString(recordWrapper.getRecord().getPrice()).toLowerCase().contains(args[1].toLowerCase()))
+                                    filteredRecordWrappers.add(recordWrapper);
+                                break;
+                            case "place":
+                                if (recordWrapper.getRecord().getPlace().toLowerCase().contains(args[1].toLowerCase()))
+                                    filteredRecordWrappers.add(recordWrapper);
+                                break;
+                            case "date":
+                                if (recordWrapper.getRecord().getDate().toLowerCase().contains(args[1].toLowerCase()))
+                                    filteredRecordWrappers.add(recordWrapper);
+                                break;
+                            case "note":
+                                if (recordWrapper.getRecord().getNote().toLowerCase().contains(args[1].toLowerCase()))
+                                    filteredRecordWrappers.add(recordWrapper);
+                                break;
+                            case "type":
+                                if (recordWrapper.getRecord().getType().toLowerCase().contains(args[1].toLowerCase()))
+                                    filteredRecordWrappers.add(recordWrapper);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                }
+            } else {
+                for (RecordWrapper recordWrapper : recordWrappers) {
+                    if (recordWrapper.getRecord().getType().toLowerCase().contains(query)
+                            || recordWrapper.getRecord().getCategory().toLowerCase().contains(query)
+                            || Double.toString(recordWrapper.getRecord().getPrice()).toLowerCase().contains(query)
+                            || recordWrapper.getRecord().getPlace().toLowerCase().contains(query)
+                            || recordWrapper.getRecord().getDate().toLowerCase().contains(query)
+                            || recordWrapper.getRecord().getNote().toLowerCase().contains(query)) {
+                        filteredRecordWrappers.add(recordWrapper);
+                    }
                 }
             }
         } else {

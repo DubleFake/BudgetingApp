@@ -41,7 +41,7 @@
                      </Label>
                  </children>
              </Pane>
-            <HBox layoutX="14.0" layoutY="256.0" prefHeight="396.0" prefWidth="1252.0">
+            <HBox alignment="CENTER" layoutX="14.0" layoutY="157.0" prefHeight="472.0" prefWidth="1252.0">
                <children>
                   <PieChart fx:id="expensesPieChart" visible="true" />
                   <BarChart fx:id="expensesBarChart">
@@ -54,7 +54,7 @@
                   </BarChart>
                </children>
             </HBox>
-            <HBox layoutX="14.0" layoutY="213.0" prefHeight="43.0" prefWidth="339.0">
+            <HBox layoutX="14.0" layoutY="114.0" prefHeight="43.0" prefWidth="339.0">
                <children>
                   <Label alignment="TOP_LEFT" prefHeight="25.0" prefWidth="185.0" text="Select data period:">
                      <padding>
@@ -74,7 +74,7 @@
                   </ChoiceBox>
                </children>
             </HBox>
-            <Button layoutX="353.0" layoutY="213.0" mnemonicParsing="false" onAction="#onLoadButtonClicked" style="-fx-background-color: #15ca0c;" text="Load" />
+            <Button layoutX="353.0" layoutY="114.0" mnemonicParsing="false" onAction="#onLoadButtonClicked" style="-fx-background-color: #15ca0c;" text="Load" />
          </children>
       </Pane>   </children>
 </AnchorPane>
