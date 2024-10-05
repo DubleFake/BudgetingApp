@@ -1,0 +1,18 @@
+/* style.css */
+/* This hides the arrow of the MenuButton */
+.menu-button .arrow {
+    -fx-pref-width: 0;    /* Set preferred width to zero */
+    -fx-pref-height: 0;   /* Set preferred height to zero */
+    -fx-background-color: transparent; /* Remove background */
+}
+
+/* Center the text inside the MenuButton */
+.menu-button {
+    -fx-alignment: center; /* Center the content vertically */
+    -fx-padding: 1 1;      /* Adjust padding (top/bottom, left/right) */
+    -fx-font-size: 12px;    /* Set a smaller font size if needed */
+    -fx-min-width: 40px;    /* Minimum width of the button */
+    -fx-min-height: 25px;    /* Minimum height of the button */
+    -fx-pref-width: 50px;   /* Preferred width of the button */
+    -fx-pref-height: 15px;   /* Preferred height of the button */
+}

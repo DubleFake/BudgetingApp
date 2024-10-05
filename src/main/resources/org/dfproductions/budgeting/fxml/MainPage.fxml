@@ -42,6 +42,7 @@
                               <TableColumn fx:id="placeTableColumn" prefWidth="148.0" text="Place" />
                               <TableColumn fx:id="dateTableColumn" prefWidth="203.0" text="Date" />
                               <TableColumn fx:id="noteTableColumn" prefWidth="347.0" text="Note" />
+                              <TableColumn fx:id="editTableColumn" minWidth="50.0" maxWidth="50.0" text="" />
                           </columns>
                            <columnResizePolicy>
                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

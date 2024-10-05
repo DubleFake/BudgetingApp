@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.util.Callback;
 import org.dfproductions.budgeting.Main;
 import org.dfproductions.budgeting.SceneManager;
 import org.dfproductions.budgeting.backend.templates.Record;
@@ -84,9 +85,14 @@ public class MainPageController implements Initializable {
     @FXML
     private Label statusReportLabel;
 
+    @FXML
+    private TableColumn<Record, String> editTableColumn;
+
     private static String selectionPeriod;
 
     private static List<RecordWrapper> recordWrappers;
+
+
 
 
     @Override
@@ -119,6 +125,15 @@ public class MainPageController implements Initializable {
         recordWrappers = getRecords();
         assert recordWrappers != null;
         insertRecordsIntoTable(recordWrappers);
+
+        expenseTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                // Load CSS to remove the arrow from MenuButton
+                newScene.getStylesheets().add(Main.class.getResource("fxml/css/MainPage.css").toExternalForm());
+            }
+        });
+
+        addEditButtonToTable();
     }
 
     private List<RecordWrapper> declassifyRecords(String json) {
@@ -176,6 +191,68 @@ public class MainPageController implements Initializable {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    private void addEditButtonToTable() {
+        // Set the CellValueFactory for the column to display the name of the record
+        editTableColumn.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(""));
+
+        // Define the custom cell factory for the category column
+        Callback<TableColumn<Record, String>, TableCell<Record, String>> cellFactory = new Callback<>() {
+            @Override
+            public TableCell<Record, String> call(final TableColumn<Record, String> param) {
+                return new TableCell<>() {
+
+                    private final MenuButton menuButton = new MenuButton("...");
+                    {
+                        // Create MenuItems for Edit and Delete
+                        MenuItem editItem = new MenuItem("Edit");
+                        MenuItem deleteItem = new MenuItem("Delete");
+
+                        // Set actions for Edit and Delete
+                        editItem.setOnAction(event -> {
+                            Record record = getTableView().getItems().get(getIndex());
+                            editRecord(record);
+                        });
+
+                        deleteItem.setOnAction(event -> {
+                            Record record = getTableView().getItems().get(getIndex());
+                            deleteRecord(record);
+                        });
+
+                        // Add MenuItems to the MenuButton
+                        menuButton.getItems().addAll(editItem, deleteItem);
+                    }
+
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(item); // Display the string data (e.g., the name)
+                            setGraphic(menuButton); // Display the MenuButton with actions
+                        }
+                    }
+                };
+            }
+        };
+
+        // Set the custom cell factory for the category column
+        editTableColumn.setCellFactory(cellFactory);
+    }
+
+    private void editRecord(Record product) {
+        // Handle the edit action
+        System.out.println("Editing product: " + product.getCategory());
+        // You can open a dialog or update the data here
+    }
+
+    private void deleteRecord(Record product) {
+        // Handle the delete action
+        System.out.println("Deleting product: " + product.getCategory());
+        // You can remove the product from the table here
     }
 
     private void insertRecordsIntoTable(List<RecordWrapper> recordWrappers) {
@@ -276,6 +353,7 @@ public class MainPageController implements Initializable {
             recordWrappers = getRecords();
             assert recordWrappers != null;
             insertRecordsIntoTable(recordWrappers);
+            addEditButtonToTable();
 
 
         } catch (Exception e) {
@@ -352,6 +430,7 @@ public class MainPageController implements Initializable {
         }
 
         insertRecordsIntoTable(filteredRecordWrappers);
+        addEditButtonToTable();
 
     }
 
@@ -409,6 +488,7 @@ public class MainPageController implements Initializable {
         recordWrappers = getRecords();
         assert recordWrappers != null;
         insertRecordsIntoTable(recordWrappers);
+        addEditButtonToTable();
 
     }
 
