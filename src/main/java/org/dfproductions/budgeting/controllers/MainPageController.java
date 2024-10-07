@@ -12,6 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 import org.dfproductions.budgeting.Main;
 import org.dfproductions.budgeting.SceneManager;
+import org.dfproductions.budgeting.backend.templates.DataSingelton;
 import org.dfproductions.budgeting.backend.templates.Record;
 import org.dfproductions.budgeting.backend.templates.RecordWrapper;
 
@@ -92,6 +93,7 @@ public class MainPageController implements Initializable {
 
     private static List<RecordWrapper> recordWrappers;
 
+    DataSingelton recordInstance = DataSingelton.getInstance();
 
 
 
@@ -158,6 +160,7 @@ public class MainPageController implements Initializable {
         }
         return null;
     }
+
     private List<RecordWrapper> getRecords() {
         try {
             HttpClient client = HttpClient.newHttpClient();
@@ -211,13 +214,22 @@ public class MainPageController implements Initializable {
 
                         // Set actions for Edit and Delete
                         editItem.setOnAction(event -> {
+                            turnOffStatusReportLabel();
                             Record record = getTableView().getItems().get(getIndex());
-                            editRecord(record);
+                            try {
+                                editRecord(record);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
                         });
 
                         deleteItem.setOnAction(event -> {
                             Record record = getTableView().getItems().get(getIndex());
-                            deleteRecord(record);
+                            try {
+                                deleteRecord(record);
+                            } catch (IOException | InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
                         });
 
                         // Add MenuItems to the MenuButton
@@ -243,16 +255,58 @@ public class MainPageController implements Initializable {
         editTableColumn.setCellFactory(cellFactory);
     }
 
-    private void editRecord(Record product) {
-        // Handle the edit action
-        System.out.println("Editing product: " + product.getCategory());
-        // You can open a dialog or update the data here
+    private void editRecord(Record record) throws IOException {
+
+        recordInstance.setRecord(record);
+        SceneManager sm = new SceneManager(Main.getStage());
+        sm.switchScene("fxml/RecordEdit.fxml");
     }
 
-    private void deleteRecord(Record product) {
-        // Handle the delete action
-        System.out.println("Deleting product: " + product.getCategory());
-        // You can remove the product from the table here
+    private void deleteRecord(Record record) throws IOException, InterruptedException {
+
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Confirmation Dialog");
+        confirmationAlert.setHeaderText("Confirmation Required");
+        confirmationAlert.setContentText("Are you sure you want to delete this record?");
+
+        // Show the alert and wait for the user response
+        Optional<ButtonType> result = confirmationAlert.showAndWait();
+
+        // Check the user's response
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+
+            HttpClient client = HttpClient.newHttpClient();
+
+            String apiUrl = "http://localhost:8080/api/record/delete/" + record.getId();
+            String username = "user";
+            String password = "user";
+
+            // Encode username:password in Base64 for Basic Authentication
+            String auth = username + ":" + password;
+            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Basic " + encodedAuth) // Add Basic Authentication header
+                    .DELETE()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            System.out.println(response.statusCode());
+            System.out.println(response.body());
+
+            if(response.statusCode() == 204) {
+                recordWrappers = getRecords();
+                assert recordWrappers != null;
+                insertRecordsIntoTable(recordWrappers);
+                addEditButtonToTable();
+            }
+        } else {
+            System.out.println("User cancelled the action.");
+        }
     }
 
     private void insertRecordsIntoTable(List<RecordWrapper> recordWrappers) {
