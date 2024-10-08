@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #F2F1EB;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dfproductions.budgeting.controllers.RegisterController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dfproductions.budgeting.controllers.RegisterController">
    <children>
       <Pane layoutX="14.0" layoutY="14.0" prefHeight="139.0" prefWidth="1250.0" style="-fx-background-color: #88AB8E;">
          <children>
@@ -19,14 +19,19 @@
             </Label>
          </children>
       </Pane>
-      <TextField fx:id="nameField" layoutX="558.0" layoutY="165.0" promptText="Bomba" />
-      <TextField fx:id="emailField" layoutX="558.0" layoutY="201.0" promptText="e@mail.com" />
+      <TextField fx:id="nameField" layoutX="558.0" layoutY="165.0" onMouseClicked="#turnOffStatusReportLabel" promptText="Bomba" />
+      <TextField fx:id="emailField" layoutX="558.0" layoutY="201.0" onMouseClicked="#turnOffStatusReportLabel" promptText="e@mail.com" />
       <Label layoutX="510.0" layoutY="169.0" text="Name" />
       <Label layoutX="509.0" layoutY="205.0" text="E-mail" />
       <Label layoutX="487.0" layoutY="241.0" text="Password" />
       <Label layoutX="445.0" layoutY="278.0" text="Repeat Password" />
       <Button fx:id="btnRegister" layoutX="605.0" layoutY="310.0" mnemonicParsing="false" onAction="#onRegisterClick" text="Register" />
-      <PasswordField fx:id="passwordField" layoutX="558.0" layoutY="237.0" promptText="verypassword123" />
-      <PasswordField fx:id="repeatPasswordField" layoutX="559.0" layoutY="274.0" promptText="verypassword123" />
+      <PasswordField fx:id="passwordField" layoutX="558.0" layoutY="237.0" onMouseClicked="#turnOffStatusReportLabel" promptText="verypassword123" />
+      <PasswordField fx:id="repeatPasswordField" layoutX="559.0" layoutY="274.0" onMouseClicked="#turnOffStatusReportLabel" promptText="verypassword123" />
+      <Label fx:id="statusReportLabel" alignment="CENTER" layoutX="8.0" layoutY="375.0" prefHeight="45.0" prefWidth="1263.0" style="-fx-background-color: #FF7E83;" visible="false">
+         <font>
+            <Font size="32.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

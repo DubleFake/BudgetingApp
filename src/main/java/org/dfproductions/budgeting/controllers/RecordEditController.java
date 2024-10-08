@@ -4,7 +4,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.Pane;
 import org.dfproductions.budgeting.Main;
 import org.dfproductions.budgeting.SceneManager;
 import org.dfproductions.budgeting.backend.templates.DataSingelton;
@@ -17,13 +16,16 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 
 public class RecordEditController implements Initializable {
+
+    @FXML
+    private Label statusReportLabel;
 
     @FXML
     private ChoiceBox<String> categoryChoiceBox;
@@ -50,7 +52,7 @@ public class RecordEditController implements Initializable {
     private TextField noteField;
 
     @FXML
-    private TextField palceField;
+    private TextField placeField;
 
     @FXML
     private TextField priceField;
@@ -81,7 +83,7 @@ public class RecordEditController implements Initializable {
         categoryChoiceBox.setValue(record.getCategory());
         datePicker.setValue(LocalDate.parse(record.getDate(), DateTimeFormatter.ofPattern("yyyy/MM/dd")));
         priceField.setText(Double.toString(record.getPrice()));
-        palceField.setText(record.getPlace());
+        placeField.setText(record.getPlace());
         noteField.setText(record.getNote());
     }
 
@@ -115,6 +117,32 @@ public class RecordEditController implements Initializable {
     @FXML
     private void onSaveClick() {
 
+        if(typeChoiceBox.getValue() == null) {
+            turnOnStatusReportLabel("Select a type for the record.");
+            return;
+        }
+
+        if(categoryChoiceBox.getValue() == null) {
+            turnOnStatusReportLabel("Select a category for the record.");
+            return;
+        }
+
+        Pattern pricePattern = Pattern.compile("^\\d+(\\.\\d+)?$");
+        if(!pricePattern.matcher(priceField.getText()).matches()) {
+            turnOnStatusReportLabel("Enter a valid price.");
+            return;
+        }
+
+        if(placeField.getText().isEmpty()) {
+            turnOnStatusReportLabel("Enter a place.");
+            return;
+        }
+
+        if(datePicker.getValue() == null) {
+            turnOnStatusReportLabel("Enter a date.");
+            return;
+        }
+
         try {
 
             SceneManager sm = new SceneManager(Main.getStage());
@@ -127,7 +155,7 @@ public class RecordEditController implements Initializable {
                     "      \"category\":\"" + categoryChoiceBox.getValue() + "\",\n" +
                     "      \"date\":\"" + datePicker.getValue().getYear()+ formatValue(datePicker.getValue().getMonthValue())+ formatValue(datePicker.getValue().getDayOfMonth()) + "\",\n" +
                     "      \"price\":\"" + priceField.getText() + "\",\n" +
-                    "      \"place\":\"" + palceField.getText() + "\",\n" +
+                    "      \"place\":\"" + placeField.getText() + "\",\n" +
                     "      \"note\":\"" + noteField.getText() + "\",\n" +
                     "      \"type\":\"" + typeChoiceBox.getValue() + "\"\n" +
                     "}"; // JSON body
@@ -158,7 +186,7 @@ public class RecordEditController implements Initializable {
             categoryChoiceBox.setValue("");
             typeChoiceBox.setValue(null);
             priceField.setText("");
-            palceField.setText("");
+            placeField.setText("");
             noteField.setText("");
 
 
@@ -172,5 +200,20 @@ public class RecordEditController implements Initializable {
             return "0" + value;
         else
             return Integer.toString(value);
+    }
+
+    @FXML
+    private void turnOffStatusReportLabel() {
+        if (statusReportLabel.isVisible()) {
+            statusReportLabel.setVisible(false);
+            statusReportLabel.setText("");
+        }
+    }
+
+    private void turnOnStatusReportLabel(String text) {
+        if (!statusReportLabel.isVisible())
+            statusReportLabel.setVisible(true);
+        statusReportLabel.setText(text);
+
     }
 }

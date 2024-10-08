@@ -9,13 +9,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Background;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.dfproductions.budgeting.Main;
 import org.dfproductions.budgeting.SceneManager;
 import org.dfproductions.budgeting.backend.templates.DataSingelton;
 import org.dfproductions.budgeting.backend.templates.Record;
 import org.dfproductions.budgeting.backend.templates.RecordWrapper;
-
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,6 +27,8 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainPageController implements Initializable {
 
@@ -96,7 +99,6 @@ public class MainPageController implements Initializable {
     DataSingelton recordInstance = DataSingelton.getInstance();
 
 
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -146,8 +148,8 @@ public class MainPageController implements Initializable {
 
             for (RecordWrapper recordWrapper : records) {
                 String date = recordWrapper.getRecord().getDate();
-                String year = date.substring(0,4);
-                String month = date.substring(0,6).substring(4);
+                String year = date.substring(0, 4);
+                String month = date.substring(0, 6).substring(4);
                 String day = date.substring(date.length() - 2);
                 recordWrapper.getRecord().setDate(year + "/" + month + "/" + day);
 
@@ -190,7 +192,7 @@ public class MainPageController implements Initializable {
             System.out.println(response.body());
 
             return declassifyRecords(response.body());
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return null;
@@ -207,6 +209,7 @@ public class MainPageController implements Initializable {
                 return new TableCell<>() {
 
                     private final MenuButton menuButton = new MenuButton("...");
+
                     {
                         // Create MenuItems for Edit and Delete
                         MenuItem editItem = new MenuItem("Edit");
@@ -298,7 +301,7 @@ public class MainPageController implements Initializable {
             System.out.println(response.statusCode());
             System.out.println(response.body());
 
-            if(response.statusCode() == 204) {
+            if (response.statusCode() == 204) {
                 recordWrappers = getRecords();
                 assert recordWrappers != null;
                 insertRecordsIntoTable(recordWrappers);
@@ -319,7 +322,7 @@ public class MainPageController implements Initializable {
         typeTableColumn.setCellValueFactory(new PropertyValueFactory<>("Type"));
         ObservableList<Record> recordList;
         recordList = FXCollections.observableArrayList();
-        for(RecordWrapper recordWrapper : recordWrappers) {
+        for (RecordWrapper recordWrapper : recordWrappers) {
             recordList.add(recordWrapper.getRecord());
         }
         expenseTable.setItems(recordList);
@@ -332,13 +335,13 @@ public class MainPageController implements Initializable {
 
         SceneManager sm = new SceneManager(Main.getStage());
 
-        if(event.getSource() == btnGraphs) {
+        if (event.getSource() == btnGraphs) {
             sm.switchScene("fxml/Graphs.fxml");
         }
-        if(event.getSource() == btnSettings) {
+        if (event.getSource() == btnSettings) {
             sm.switchScene("fxml/Settings.fxml");
         }
-        if(event.getSource() == btnWIP) {
+        if (event.getSource() == btnWIP) {
             sm.switchScene("fxml/WIP.fxml");
         }
 
@@ -350,9 +353,33 @@ public class MainPageController implements Initializable {
 
         turnOffStatusReportLabel();
 
-        try {
+        if(typeChoiceBox.getValue() == null) {
+            turnOnStatusReportLabel("Select a type for the record.");
+            return;
+        }
 
-            SceneManager sm = new SceneManager(Main.getStage());
+        if(categoryChoiceBox.getValue() == null) {
+            turnOnStatusReportLabel("Select a category for the record.");
+            return;
+        }
+
+        Pattern pricePattern = Pattern.compile("^\\d+(\\.\\d+)?$");
+        if(!pricePattern.matcher(priceTextField.getText()).matches()) {
+            turnOnStatusReportLabel("Enter a valid price.");
+            return;
+        }
+
+        if(placeTextField.getText().isEmpty()) {
+            turnOnStatusReportLabel("Enter a place.");
+            return;
+        }
+
+        if(datePicker.getValue() == null) {
+            turnOnStatusReportLabel("Enter a date.");
+            return;
+        }
+
+        try {
 
             HttpClient client = HttpClient.newHttpClient();
 
@@ -388,14 +415,11 @@ public class MainPageController implements Initializable {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            int responseCode = response.statusCode();
-
-            if(responseCode == 202)
-                sm.switchScene("fxml/MainPage.fxml");
             System.out.println(response.statusCode());
             System.out.println(response.body());
 
             datePicker.setValue(null);
+            typeChoiceBox.setValue(null);
             categoryChoiceBox.setValue("");
             priceTextField.setText("");
             placeTextField.setText("");
@@ -418,7 +442,7 @@ public class MainPageController implements Initializable {
 
     private String formatValue(int value) {
 
-        if(value <= 9)
+        if (value <= 9)
             return "0" + value;
         else
             return Integer.toString(value);
@@ -427,13 +451,13 @@ public class MainPageController implements Initializable {
     @FXML
     private void onTextFieldSearch() {
 
-        List<String> keywords = Arrays.asList("Category:","Price:","Place:","Date:","Note:","Type:");
+        List<String> keywords = Arrays.asList("Category:", "Price:", "Place:", "Date:", "Note:", "Type:");
         List<RecordWrapper> filteredRecordWrappers = new ArrayList<>();
         String query = textFieldSearch.getText().toLowerCase();
 
-        if(!query.isEmpty()) {
-            if(keywords.stream().anyMatch(x -> query.toLowerCase().contains(x.toLowerCase())) && query.split(":").length > 1) {
-               String[] args = query.split(":");
+        if (!query.isEmpty()) {
+            if (keywords.stream().anyMatch(x -> query.toLowerCase().contains(x.toLowerCase())) && query.split(":").length > 1) {
+                String[] args = query.split(":");
                 if (!args[1].isEmpty()) {
                     for (RecordWrapper recordWrapper : recordWrappers) {
                         switch (args[0].toLowerCase()) {
@@ -490,14 +514,23 @@ public class MainPageController implements Initializable {
 
     @FXML
     private void turnOffStatusReportLabel() {
-        if(statusReportLabel.isVisible()) {
+        if (statusReportLabel.isVisible()) {
             statusReportLabel.setVisible(false);
             statusReportLabel.setText("");
+            statusReportLabel.setStyle("-fx-background-color: #AFC8AD;");
         }
     }
 
+    private void turnOnStatusReportLabel(String text) {
+        if (!statusReportLabel.isVisible())
+            statusReportLabel.setVisible(true);
+        statusReportLabel.setText(text);
+        statusReportLabel.setStyle("-fx-background-color: #FF7E83;");
+
+    }
+
     @FXML
-    private void onLoadButtonClicked(){
+    private void onLoadButtonClicked() {
 
         LocalDate now = LocalDate.now();
 
@@ -506,24 +539,24 @@ public class MainPageController implements Initializable {
                 selectionPeriod = now.getYear() + formatValue(now.getMonthValue());
                 break;
             case "Last month":
-                if(now.getMonth().getValue() == 1) {
-                    selectionPeriod = now.getYear() - 1 + "12" + "-"  + now.getYear() + formatValue(now.getMonthValue());
-                }else{
-                    selectionPeriod = now.getYear() + formatValue(now.getMonth().getValue()-1) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                if (now.getMonth().getValue() == 1) {
+                    selectionPeriod = now.getYear() - 1 + "12" + "-" + now.getYear() + formatValue(now.getMonthValue());
+                } else {
+                    selectionPeriod = now.getYear() + formatValue(now.getMonth().getValue() - 1) + "-" + now.getYear() + formatValue(now.getMonthValue());
                 }
                 break;
             case "Last 3 months":
-                if(now.getMonth().getValue() >= 3) {
-                    selectionPeriod = now.getYear() + formatValue(now.getMonthValue()-3) + "-" + now.getYear() + formatValue(now.getMonthValue());
-                }else{
-                    selectionPeriod = now.getYear()-1 + formatValue(now.getMonthValue()-3) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                if (now.getMonth().getValue() >= 3) {
+                    selectionPeriod = now.getYear() + formatValue(now.getMonthValue() - 3) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                } else {
+                    selectionPeriod = now.getYear() - 1 + formatValue(now.getMonthValue() - 3) + "-" + now.getYear() + formatValue(now.getMonthValue());
                 }
                 break;
             case "Last 6 months":
-                if(now.getMonth().getValue() >= 6) {
-                    selectionPeriod = now.getYear() + formatValue(now.getMonthValue()-6) + "-" + now.getYear() + formatValue(now.getMonthValue());
-                }else{
-                    selectionPeriod = now.getYear()-1 + formatValue(now.getMonthValue()-6) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                if (now.getMonth().getValue() >= 6) {
+                    selectionPeriod = now.getYear() + formatValue(now.getMonthValue() - 6) + "-" + now.getYear() + formatValue(now.getMonthValue());
+                } else {
+                    selectionPeriod = now.getYear() - 1 + formatValue(now.getMonthValue() - 6) + "-" + now.getYear() + formatValue(now.getMonthValue());
                 }
                 break;
             case "Last year":
