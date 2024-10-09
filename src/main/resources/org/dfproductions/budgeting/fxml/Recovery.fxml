@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #F2F1EB;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dfproductions.budgeting.controllers.RecoveryController">
+   <children>
+      <Pane layoutX="14.0" layoutY="14.0" prefHeight="200.0" prefWidth="1255.0" style="-fx-background-color: #88AB8E;">
+         <children>
+            <Label alignment="CENTER" layoutX="426.0" layoutY="68.0" text="Welcome to Le app">
+               <font>
+                  <Font size="45.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      <Label layoutX="514.0" layoutY="377.0" text="Email:">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <padding>
+            <Insets right="10.0" />
+         </padding></Label>
+      <Button fx:id="recoverButton" layoutX="594.0" layoutY="411.0" mnemonicParsing="false" onAction="#onRecoverClick" prefHeight="26.0" prefWidth="83.0" text="Recover" />
+      <TextField fx:id="emailField" layoutX="561.0" layoutY="373.0" />
+      <Label fx:id="loginLabel" layoutX="589.0" layoutY="444.0" onMouseClicked="#onLogInClick" text=" Log in instead." textFill="#5641a4">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </Label>
+      <Label fx:id="infoLabel" layoutX="346.0" layoutY="462.0" text="If this email exists, recovery instrutions will be sent to it's inbox." visible="false">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

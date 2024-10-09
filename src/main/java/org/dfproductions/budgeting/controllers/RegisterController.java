@@ -9,6 +9,7 @@ import org.dfproductions.budgeting.Main;
 import org.dfproductions.budgeting.SceneManager;
 import org.dfproductions.budgeting.backend.PasswordHashing;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
@@ -126,5 +127,11 @@ public class RegisterController implements Initializable {
         if (!statusReportLabel.isVisible())
             statusReportLabel.setVisible(true);
         statusReportLabel.setText(text);
+    }
+
+    @FXML
+    void onLogInClick() throws IOException {
+        SceneManager sm = new SceneManager(Main.getStage());
+        sm.switchScene("fxml/Login.fxml");
     }
 }
