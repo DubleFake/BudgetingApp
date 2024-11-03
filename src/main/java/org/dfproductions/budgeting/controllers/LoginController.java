@@ -46,18 +46,11 @@ public class LoginController implements Initializable {
 
             String apiUrl = "http://localhost:8080/api/user/login";
             String bodyParams = "{\"email\":\"" + loginField.getText() + "\",\"password\":\""+ passwordField.getText() + "\"}"; // JSON body
-            String username = "user";
-            String password = "user";
-
-            // Encode username:password in Base64 for Basic Authentication
-            String auth = username + ":" + password;
-            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Basic " + encodedAuth) // Add Basic Authentication header
-                    .method("GET", HttpRequest.BodyPublishers.ofString(bodyParams)) // Note: method allows GET with body
+                    .method("POST", HttpRequest.BodyPublishers.ofString(bodyParams)) // Note: method allows GET with body
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -67,8 +60,10 @@ public class LoginController implements Initializable {
             System.out.println(response.statusCode());
             System.out.println(response.body());
 
-            if(responseCode == 202)
-                sm.switchScene("fxml/MainPage.fxml");
+            Main.setToken(response.body());
+
+            if(responseCode == 202) {}
+                //sm.switchScene("fxml/MainPage.fxml");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,4 +81,5 @@ public class LoginController implements Initializable {
         SceneManager sm = new SceneManager(Main.getStage());
         sm.switchScene("fxml/Recovery.fxml");
     }
+
 }

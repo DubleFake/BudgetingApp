@@ -86,17 +86,10 @@ public class RegisterController implements Initializable {
 
             String apiUrl = "http://localhost:8080/api/user/create";
             String bodyParams = "{\"name\":\"" + nameField.getText() + "\",\"email\":\"" + emailField.getText() + "\",\"passwordHash\":\"" + passwordCombo[1] + "\",\"passwordSalt\":\"" + passwordCombo[0] + "\"}"; // JSON body
-            String username = "user";
-            String password = "user";
-
-            // Encode username:password in Base64 for Basic Authentication
-            String auth = username + ":" + password;
-            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Basic " + encodedAuth) // Add Basic Authentication header
                     .method("POST", HttpRequest.BodyPublishers.ofString(bodyParams)) // Note: method allows GET with body
                     .build();
 

@@ -159,18 +159,12 @@ public class RecordEditController implements Initializable {
                     "      \"note\":\"" + noteField.getText() + "\",\n" +
                     "      \"type\":\"" + typeChoiceBox.getValue() + "\"\n" +
                     "}"; // JSON body
-            String username = "user";
-            String password = "user";
-
-            // Encode username:password in Base64 for Basic Authentication
-            String auth = username + ":" + password;
-            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Basic " + encodedAuth) // Add Basic Authentication header
-                    .method("POST", HttpRequest.BodyPublishers.ofString(bodyParams)) // Note: method allows GET with body
+                    .header("Authorization", "Bearer " + Main.getToken())
+                    .method("POST", HttpRequest.BodyPublishers.ofString(bodyParams))
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());

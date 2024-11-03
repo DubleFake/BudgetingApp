@@ -168,21 +168,17 @@ public class MainPageController implements Initializable {
             HttpClient client = HttpClient.newHttpClient();
 
             String apiUrl = "http://localhost:8080/api/record/get/" + selectionPeriod;
-            String username = "user";
-            String password = "user";
 
             System.out.println(apiUrl);
 
             String bodyParams = "user"; // JSON body
 
             // Encode username:password in Base64 for Basic Authentication
-            String auth = username + ":" + password;
-            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Basic " + encodedAuth) // Add Basic Authentication header
+                    .header("Authorization", "Bearer " + Main.getToken()) // Add Basic Authentication header
                     .method("GET", HttpRequest.BodyPublishers.ofString(bodyParams)) // Note: method allows GET with body
                     .build();
 
@@ -190,6 +186,16 @@ public class MainPageController implements Initializable {
 
             System.out.println(response.statusCode());
             System.out.println(response.body());
+
+            if(response.statusCode() == 401 && response.body().equalsIgnoreCase("invalid token")) {
+                Alert info = new Alert(Alert.AlertType.INFORMATION);
+                info.setTitle("Session expired.");
+                info.setHeaderText("Your session expired!\nPlease, log in again.");
+                Optional<ButtonType> result = info.showAndWait();
+                turnOffStatusReportLabel();
+                SceneManager sm = new SceneManager(Main.getStage());
+                sm.switchScene("fxml/Login.fxml");
+            }
 
             return declassifyRecords(response.body());
         } catch (Exception ex) {
@@ -281,18 +287,12 @@ public class MainPageController implements Initializable {
             HttpClient client = HttpClient.newHttpClient();
 
             String apiUrl = "http://localhost:8080/api/record/delete/" + record.getId();
-            String username = "user";
-            String password = "user";
-
-            // Encode username:password in Base64 for Basic Authentication
-            String auth = username + ":" + password;
-            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
 
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Basic " + encodedAuth) // Add Basic Authentication header
+                    .header("Authorization", "Bearer " + Main.getToken()) // Add Basic Authentication header
                     .DELETE()
                     .build();
 
@@ -399,17 +399,11 @@ public class MainPageController implements Initializable {
                     "   },\n" +
                     "   \"email\":\"user\"\n" +
                     "}"; // JSON body
-            String username = "user";
-            String password = "user";
-
-            // Encode username:password in Base64 for Basic Authentication
-            String auth = username + ":" + password;
-            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Basic " + encodedAuth) // Add Basic Authentication header
+                    .header("Authorization", "Bearer " + Main.getToken())
                     .method("POST", HttpRequest.BodyPublishers.ofString(bodyParams)) // Note: method allows GET with body
                     .build();
 

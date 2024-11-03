@@ -46,17 +46,11 @@ public class RecoveryController implements Initializable {
         try {
             HttpClient client = HttpClient.newHttpClient();
             String apiUrl = "http://localhost:8080/api/user/recovery/" + emailField.getText();
-            String username = "user";
-            String password = "user";
-
-            // Encode username:password in Base64 for Basic Authentication
-            String auth = username + ":" + password;
-            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Basic " + encodedAuth) // Add Basic Authentication header
+                    .header("Authorization", "Bearer " + Main.getToken()) // Add Basic Authentication header
                     .method("POST", HttpRequest.BodyPublishers.ofString("")) // Note: method allows GET with body
                     .build();
 

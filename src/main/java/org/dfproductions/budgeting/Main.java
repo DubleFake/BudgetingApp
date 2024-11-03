@@ -10,6 +10,7 @@ import java.io.IOException;
 public class Main extends Application {
 
     private static Stage stage;
+    private static String token = "";
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -26,5 +27,13 @@ public class Main extends Application {
 
     public static Stage getStage() {
         return stage;
+    }
+
+    public static String getToken() {
+        return token;
+    }
+
+    public static void setToken(String token) {
+        Main.token = token;
     }
 }
